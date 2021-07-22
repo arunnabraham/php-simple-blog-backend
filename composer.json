@@ -1,0 +1,24 @@
+{
+    "name": "arunnabraham/php-simple-graphql-blog",
+    "description": "Simple Blog API with GraphQL",
+    "type": "project",
+    "license": "ISC",
+    "autoload": {
+        "psr-4": {
+            "Neoxenos\\PhpSimpleGraphqlBlog\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Arun Abraham",
+            "email": "arunnabraham@gmail.com"
+        }
+    ],
+    "require": {
+        "leocavalcante/siler": "^1.7",
+        "webonyx/graphql-php": "^14.9"
+    },
+    "require-dev": {
+        "swoole/ide-helper": "^4.7"
+    }
+}
