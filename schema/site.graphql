@@ -1,0 +1,37 @@
+type Page {
+    id: ID!,
+    title: String,
+    content: String,
+    metaDescription: String,
+    metaKeywords: String
+    slug: String
+}
+
+type Author {
+    id: ID!,
+    name: String,
+    bio: String,
+    country: String,
+
+}
+
+type Pagination {
+    limit: Int,
+    page: Int
+}
+
+type Category {
+    id: ID!,
+    name: String
+}
+
+type Tag {
+    id: ID!,
+    name: String
+}
+
+type Blog {
+    page: Page,
+    categories: [Categories],
+    author: Author
+}
