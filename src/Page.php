@@ -11,15 +11,21 @@ use Swoole\Coroutine\MySQL;
 use Swoole\Coroutine as Co;
 use Swoole\Exception;
 use Swoole\Coroutine\Channel;
+use Swoole\Http\Request;
+use Siler\Swoole as Sw;
+use Swoole\FastCGI\Request as FastCGIRequest;
+
+use function Siler\Swoole\json as json;
 
 const N = 5;
 
 class Page
 {
     public $result = '';
-    public function listBlogs(string $listBy = 'categories', int $limit = 10, int $page = 1)
+    public function listBlogs()
     {
-       return $this->list($limit);
+        var_dump(Sw\request()->get);
+        return json($this->list(1));
     }
 
     public function detailBlog(string $id, $idType = 'ref', bool $mode = false)
@@ -31,16 +37,17 @@ class Page
     }
 
 
-    private function list($limit =1)
+    private function list($req)
     {
 
         try {
+            $limit = $req;
             $pool = (new PdoPool())->db();
 
             $chan = new Channel(1);
 
-          //  Co\run(function () use ($pool, $limit, $chan) {
-              // go(function () use ($pool, $limit) {
+//            Co\run(function () use ($pool, $limit, $chan) {
+//               go(function () use ($pool, $limit, $chan) {
                     $pdo = $pool->get();
                     $statement = $pdo->prepare("SELECT * FROM content LIMIT :limit");
                     if (!$statement) {
@@ -54,8 +61,8 @@ class Page
                     $result = $statement->fetch(PDO::FETCH_ASSOC);
                     $pool->put($pdo);
                     $chan->push($result);
-               // });
-           // });
+//                });
+//            });
            
         } catch (Exception $e) {
             echo $e->getMessage();
