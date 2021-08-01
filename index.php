@@ -12,8 +12,12 @@ use Swoole\Http\Response;
 $basedir = __DIR__;
 require_once "$basedir/vendor/autoload.php";
 
-//Coroutine Options
-Swoole\Runtime::enableCoroutine();
+//GraphQL Schema
+
+
+/*$handler = function (Request $request, Response $response) {
+    return  json((new Page)->listBlogs());
+}; */
 
 $options = [
     'max_coroutine' => 4096,
@@ -33,22 +37,19 @@ $options = [
     'aio_worker_num' => 10,
     'aio_max_wait_time' => 1,
     'aio_max_idle_time' => 1,
-    'exit_condition' => function() {
-        return Swoole\Coroutine::stats()['coroutine_num'] === 0;
+    'enable_preemptive_scheduler' => true,
+    'exit_condition' => function () {
+        return \Swoole\Coroutine::stats()['coroutine_num'] === 0;
     },
 ];
 
-Swoole\Coroutine::set($options);
-//GraphQL Schema
+\Swoole\Coroutine::set($options);
 
-
-/*$handler = function (Request $request, Response $response) {
-    return  json((new Page)->listBlogs());
-}; */
-
-$handler = function () {
-    Route\get('/api/blog/list', [new Page(), 'listBlogs']);
+$handler = function ($page) {
+    Route\get('/api/blog/list', [(new Page()), 'listBlogs']);
+    
     Siler\Swoole\emit('Not found', 404);
+  //  Siler\Swoole\response()->end();
 };
 
 $port = getenv('PORT') ? intval(getenv('PORT')) : 8000;
