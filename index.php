@@ -13,12 +13,13 @@ use function Siler\GraphQL\schema;
 use function Siler\Swoole\http;
 use function Siler\Swoole\json;
 use Neoxenos\PhpSimpleGraphqlBlog\Page;
+use Swoole\Http\Response;
 
 $basedir = __DIR__;
 require_once "$basedir/vendor/autoload.php";
 
 //Coroutine Options
-/* Runtime::enableCoroutine();
+ Runtime::enableCoroutine();
 
 $options = [
     'max_coroutine' => 4096,
@@ -43,13 +44,12 @@ $options = [
     },
 ];
 
-Swoole\Coroutine::set($options); */
+Swoole\Coroutine::set($options);
 //GraphQL Schema
 
 
-$handler = function (Request $request) {
-    $page = (new Page)->listBlogs();
-    return json($page);
+$handler = function (Request $request, Response $response) {
+    return  json((new Page)->listBlogs());
 };
 
 $port = getenv('PORT') ? intval(getenv('PORT')) : 8000;

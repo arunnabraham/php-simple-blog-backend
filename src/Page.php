@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Neoxenos\PhpSimpleGraphqlBlog;
 
 use PDO;
+use Neoxenos\PhpSimpleGraphqlBlog\Helpers\SwoolePdoPool as PdoPool;
 use RuntimeException;
 use Swoole\Coroutine\MySQL;
 use Swoole\Coroutine as Co;
-use Swoole\Database\PDOPool;
-use Swoole\Database\PDOConfig;
 use Swoole\Exception;
-
-use function Siler\Swoole\response;
+use Swoole\Coroutine\Channel;
 
 const N = 5;
 
@@ -21,20 +19,28 @@ class Page
     public $result = '';
     public function listBlogs(string $listBy = 'categories', int $limit = 10, int $page = 1)
     {
+       return $this->list($limit);
+    }
+
+    public function detailBlog(string $id, $idType = 'ref', bool $mode = false)
+    {
+    }
+
+    public function updateBlog(string $id, $idType, $mode)
+    {
+    }
+
+
+    private function list($limit =1)
+    {
 
         try {
-            $pool = new PDOPool(
-                (new PDOConfig)
-                    ->withHost('localhost')
-                    ->withPassword('root')
-                    ->withUsername('arun')
-                    ->withPort(3306)
-                    ->withDriver('mysql')
-                    ->withDbname('cook_n_taste_life')
-            );
+            $pool = (new PdoPool())->db();
 
-            Co\run(function () use ($pool, $limit) {
-                go(function () use ($pool, $limit) {
+            $chan = new Channel(1);
+
+          //  Co\run(function () use ($pool, $limit, $chan) {
+              // go(function () use ($pool, $limit) {
                     $pdo = $pool->get();
                     $statement = $pdo->prepare("SELECT * FROM content LIMIT :limit");
                     if (!$statement) {
@@ -47,21 +53,13 @@ class Page
                     }
                     $result = $statement->fetch(PDO::FETCH_ASSOC);
                     $pool->put($pdo);
-                    $this->result = $result;
-                });
-            });
+                    $chan->push($result);
+               // });
+           // });
+           
         } catch (Exception $e) {
             echo $e->getMessage();
         }
-        return $this->result; //$pool->get();
-
-    }
-
-    public function detailBlog(string $id, $idType = 'ref', bool $mode = false)
-    {
-    }
-
-    public function updateBlog(string $id, $idType, $mode)
-    {
+        return $chan->pop();//$this->result; //$pool->get();
     }
 }
