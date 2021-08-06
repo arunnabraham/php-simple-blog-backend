@@ -35,3 +35,7 @@ type Blog {
     categories: [Categories],
     author: Author
 }
+
+type Query {
+    pageBySlug(slug: String): Page
+}

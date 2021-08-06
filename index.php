@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
-use GraphQL\Error\Error;
-use Swoole\Http\Request;
-use function Siler\GraphQL\execute;
+declare(strict_types=1);
+
 use function Siler\GraphQL\schema;
+use GraphQL\Error\Error;
+use GraphQL\GraphQL;
+use Neoxenos\PhpSimpleGraphqlBlog\GraphQLData;
+use Swoole\Http\Request;
 use Siler\Route;
 use function Siler\Swoole\json;
-use Neoxenos\PhpSimpleGraphqlBlog\Page;
 use Swoole\Http\Response;
 
 $basedir = __DIR__;
@@ -45,13 +47,13 @@ $options = [
 
 \Swoole\Coroutine::set($options);
 
-$handler = function ($page) {
-    Route\get('/api/blog/list', [(new Page()), 'listBlogs']);
-    
+// $schema = schema(file_get_contents(__DIR__  . '/schema/site.graphql'), require_once __DIR__ . "/resolvers.php");
+$handler = function (Request $request, Response $response) {
+    Route\route('POST', '/graphql', [(new GraphQLData), 'init']);
     Siler\Swoole\emit('Not found', 404);
-  //  Siler\Swoole\response()->end();
 };
 
 $port = getenv('PORT') ? intval(getenv('PORT')) : 8000;
 echo "Listening on http://localhost:$port\n";
-Siler\Swoole\http($handler, $port)->start();
+$http = \Siler\Swoole\http($handler, $port);
+$http->start();

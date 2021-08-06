@@ -1,6 +1,8 @@
 <?php
+
 declare(strict_types=1);
-namespace Neoxenos\PhpSimpleGraphqlBlog;
+
+namespace Neoxenos\PhpSimpleGraphqlBlog\Queries;
 
 use PDO;
 use Neoxenos\PhpSimpleGraphqlBlog\Helpers\SwoolePdoPool as PdoPool;
@@ -9,24 +11,30 @@ use Swoole\Exception;
 use Swoole\Coroutine\Channel;
 
 use function Siler\Swoole\json as json;
+use \Siler\Swoole as SilerSwoole;
 
-
-class Blog {
-    public $result = '';
-    public function listBlogs()
+class Page
+{
+    public function pageBySlug(array $args)
     {
+        $pool = (new PdoPool())->db();
         try {
-            $limit = 1;
-            $pool = (new PdoPool())->db();
-
             $chan = new Channel(1);
-            go(function () use ($pool, $limit, $chan) {
+            go(function () use ($pool, $chan, $args) {
                 $pdo = $pool->get();
-                $statement = $pdo->prepare("SELECT * FROM content LIMIT :limit");
+                $colums = [
+                    "id AS ID",  
+                    "title", 
+                    "main_content AS content", 
+                    "meta_description AS metaDescription", 
+                    "meta_keywords AS metaKeywords",
+                    "slug"
+                ];
+                $statement = $pdo->prepare("SELECT ".implode(", ", $colums)." FROM content WHERE page_slug = :page_slug AND content_type = 'page' publish_status = 'publish'");
                 if (!$statement) {
                     throw new RuntimeException('Prepare failed');
                 }
-                $statement->bindValue('limit', $limit, \PDO::PARAM_INT);
+                $statement->bindValue('page_slug', $args['slug'], \PDO::PARAM_STR);
                 $result = $statement->execute();
                 if (!$result) {
                     throw new RuntimeException('Execute failed');
@@ -39,13 +47,5 @@ class Blog {
             echo $e->getMessage();
         }
         return json($chan->pop());
-    }
-
-    public function detailBlog(string $id, $idType = 'ref', bool $mode = false)
-    {
-    }
-
-    public function updateBlog(string $id, $idType, $mode)
-    {
     }
 }
