@@ -1,18 +1,29 @@
 <?php
+declare(strict_types=1);
 
 use Neoxenos\PhpSimpleGraphqlBlog\Queries\Page;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$query = [
-    'pageBySlug' => function($root, $args) {
-        return (new Page)->pageBySlug($args);
-    },
-];
+if (!function_exists('createResolvers')) {
 
-$mutation = [];
+    function createResolvers(): array
+    {
+        $page = function() {
 
-return [
-    'Query'    => $query,
-    'Mutation' => $mutation,
-];
+        };
+
+        $query = [
+            'pageBySlug' => function (?array $root, array $args) {
+                return (new Page)->pageBySlug($args);
+            }
+        ];
+
+        $mutation = [];
+
+        return [
+            'Query'    => $query,
+            'Mutation' => $mutation,
+        ];
+    }
+}

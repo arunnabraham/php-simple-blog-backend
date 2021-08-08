@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 declare(strict_types=1);
@@ -14,14 +15,10 @@ use Swoole\Http\Response;
 $basedir = __DIR__;
 require_once "$basedir/vendor/autoload.php";
 
-//GraphQL Schema
+define('GRAPHQL_SCHEMA', __DIR__ . '/schema/site.graphql');
 
 
-/*$handler = function (Request $request, Response $response) {
-    return  json((new Page)->listBlogs());
-}; */
-
-$options = [
+$coroutineOptions = [
     'max_coroutine' => 4096,
     'stack_size' => 2 * 1024 * 1024,
     'socket_connect_timeout' => 1,
@@ -45,11 +42,11 @@ $options = [
     },
 ];
 
-\Swoole\Coroutine::set($options);
+\Swoole\Coroutine::set($coroutineOptions);
 
 // $schema = schema(file_get_contents(__DIR__  . '/schema/site.graphql'), require_once __DIR__ . "/resolvers.php");
 $handler = function (Request $request, Response $response) {
-    Route\route('POST', '/graphql', [(new GraphQLData), 'init']);
+    Route\route('post', '/graphql', [(new GraphQLData), 'init']);
     Siler\Swoole\emit('Not found', 404);
 };
 
