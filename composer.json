@@ -19,7 +19,7 @@
         "leocavalcante/siler": "^1.7",
         "webonyx/graphql-php": "^14.9"
     },
-    "require-dev": {
+    "require-dev": { 
         "swoole/ide-helper": "^4.7"
     },
     "scripts": {
