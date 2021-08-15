@@ -14,7 +14,7 @@ if (!function_exists('createResolvers')) {
         };
 
         $query = [
-            'pageBySlug' => function (?array $root, array $args) {
+            'PageBySlug' => function (?array $root, array $args) {
                 return (new Page)->pageBySlug($args);
             }
         ];

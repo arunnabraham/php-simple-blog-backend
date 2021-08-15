@@ -37,5 +37,5 @@ type Blog {
 }
 
 type Query {
-    pageBySlug(slug: String): Page
+    PageBySlug(slug: String): Page
 }
