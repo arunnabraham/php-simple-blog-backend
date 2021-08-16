@@ -3,13 +3,9 @@
 
 declare(strict_types=1);
 
-use function Siler\GraphQL\schema;
-use GraphQL\Error\Error;
-use GraphQL\GraphQL;
 use Neoxenos\PhpSimpleGraphqlBlog\GraphQLData;
 use Swoole\Http\Request;
 use Siler\Route;
-use function Siler\Swoole\json;
 use Swoole\Http\Response;
 
 $basedir = __DIR__;
@@ -47,7 +43,6 @@ $coroutineOptions = [
 
 \Swoole\Coroutine::set($coroutineOptions);
 
-// $schema = schema(file_get_contents(__DIR__  . '/schema/site.graphql'), require_once __DIR__ . "/resolvers.php");
 $handler = function (Request $request, Response $response) {
     Route\route('post', '/graphql', [(new GraphQLData), 'init']);
     Siler\Swoole\emit('Not found', 404);

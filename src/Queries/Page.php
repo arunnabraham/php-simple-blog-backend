@@ -15,12 +15,11 @@ use \Siler\Swoole as SilerSwoole;
 
 class Page
 {
-    public function pageBySlug(array $args)
+    public function pageBySlug(array $args): array
     {
-        $slug = $args['slug'];
         try {
             $chan = new Channel(1);
-            go(function () use ($chan, $slug) {
+            go(function () use ($chan, $args) {
                 $pool = (new PdoPool())->db();
                 $pdo = $pool->get();
                 $colums = [
@@ -31,22 +30,25 @@ class Page
                     "meta_keywords AS metaKeywords",
                     "slug"
                 ];
-                $statement = $pdo->prepare("SELECT ".implode(", ", $colums)." FROM page WHERE slug = :page_slug AND type = 'page' AND status = 'publish' LIMIT 1");
+                $statement = $pdo->prepare("SELECT ".implode(", ", $colums)." FROM page WHERE slug = :page_slug AND type = :type AND status = :status LIMIT 1");
                 if (!$statement) {
                     throw new RuntimeException('Prepare failed');
                 }
-                $statement->bindValue('page_slug', $slug, \PDO::PARAM_STR);
+                $statement->bindValue('page_slug', $args['slug'] ?? '', \PDO::PARAM_STR);
+                $statement->bindValue('type', $args['type'] ?? 'page', \PDO::PARAM_STR);
+                $statement->bindValue('status', $args['status'] ?? 'publish', \PDO::PARAM_STR);
                 $result = $statement->execute();
                 if (!$result) {
                     throw new RuntimeException('Execute failed');
                 }
                 $pool->put($pdo);
                 $result = $statement->fetch(PDO::FETCH_ASSOC);
-                $chan->push($result);
+                $result !== false ? $result : []; 
+                $chan->push($result ?? []);
             });
         } catch (Exception $e) {
-            echo ['error' => $e->getMessage()];
+            return ['error' => $e->getMessage()];
         }
-        return json($chan->pop());
+        return $chan->pop();
     }
 }
