@@ -8,13 +8,15 @@ use Swoole\Http\Request;
 use Siler\Route;
 use Swoole\Http\Response;
 
+use function Siler\Dotenv\env;
+
 $basedir = __DIR__;
 require_once "$basedir/vendor/autoload.php";
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-define('GRAPHQL_SCHEMA', __DIR__ . '/schema/site.graphql');
+define('GRAPHQL_SCHEMA', __DIR__ . '/schema/'.env('DEFAULT_SCHEMA'));
 
 
 $coroutineOptions = [
@@ -43,14 +45,24 @@ $coroutineOptions = [
 
 \Swoole\Coroutine::set($coroutineOptions);
 
-$handler = function (Request $request, Response $response) {
+$pageCalls = function (array $routeParams) {
+    echo 'Hello World';  
+};
+
+$handler = function (Request $request, Response $response) use ($pageCalls){
     Route\route('post', '/graphql', [(new GraphQLData), 'init']);
     Siler\Swoole\emit('Not found', 404);
 };
 
 $port = getenv('PORT') ? intval(getenv('PORT')) : 8000;
-echo "Listening on http://localhost:$port\n";
-$http = \Siler\Swoole\http($handler, $port);
+
+if (env('SSL')) {
+    echo "Listening on https://" . env('SERVER_NAME') . ":$port\n";
+    $http = \Siler\Swoole\http2(env('CERT_FILE'), env('CERT_KEY'), $handler, $port, env('SERVER_NAME'));
+} else {
+    echo "Listening on https://" . env('SERVER_NAME') . ":$port\n";
+    $http = \Siler\Swoole\http($handler, $port, env('SERVER_NAME'));
+}
 $http->set([
     'enable_coroutine' => true,
 ]);

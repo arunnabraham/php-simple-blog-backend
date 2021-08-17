@@ -17,20 +17,20 @@ class Page
 {
     public function pageBySlug(array $args): array
     {
+        $chan = new Channel(1);
         try {
-            $chan = new Channel(1);
             go(function () use ($chan, $args) {
                 $pool = (new PdoPool())->db();
                 $pdo = $pool->get();
                 $colums = [
-                    "id as ID",  
-                    "title", 
-                    "content", 
-                    "meta_description AS metaDescription", 
+                    "id as ID",
+                    "title",
+                    "content",
+                    "meta_description AS metaDescription",
                     "meta_keywords AS metaKeywords",
                     "slug"
                 ];
-                $statement = $pdo->prepare("SELECT ".implode(", ", $colums)." FROM page WHERE slug = :page_slug AND type = :type AND status = :status LIMIT 1");
+                $statement = $pdo->prepare("SELECT " . implode(", ", $colums) . " FROM page WHERE slug = :page_slug AND type = :type AND status = :status LIMIT 1");
                 if (!$statement) {
                     throw new RuntimeException('Prepare failed');
                 }
@@ -42,13 +42,16 @@ class Page
                     throw new RuntimeException('Execute failed');
                 }
                 $pool->put($pdo);
+                //$pool->close();
                 $result = $statement->fetch(PDO::FETCH_ASSOC);
-                $result !== false ? $result : []; 
-                $chan->push($result ?? []);
+                $result !== false ? $result : [];
+                $chan->push($result);
             });
         } catch (Exception $e) {
-            return ['error' => $e->getMessage()];
+            $chan->push(['error' => $e->getMessage()]);
         }
         return $chan->pop();
     }
+
+
 }

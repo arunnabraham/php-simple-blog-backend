@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use GraphQL\Type\Definition\ResolveInfo;
@@ -10,15 +11,20 @@ if (!function_exists('createResolvers')) {
 
     function createResolvers(): array
     {
-        $page = function() {
-
-        };
 
         $query = [
-            'PageBySlug' => function (?array $root, array $args, $context, ResolveInfo $info) {
+            'PageBySlug' => function (?array $root, array $args, $context, ResolveInfo $info): array {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
                 return (new Page)->pageBySlug($args);
-            }
+            },
+            'ListBlogByType' => function (?array $root, array $args, $context, ResolveInfo $info): array {
+                // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
+                return (new Page)->pageBySlug($args);
+            },
+            'ListBlogByCategories' => function (?array $root, array $args, $context, ResolveInfo $info): array {
+                // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
+                return (new Page)->pageBySlug($args);
+            },
         ];
 
         $mutation = [];
