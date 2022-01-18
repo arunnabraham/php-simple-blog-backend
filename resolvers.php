@@ -25,6 +25,15 @@ if (!function_exists('createResolvers')) {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
                 return (new Page)->pageBySlug($args);
             },
+
+            'LisyTagsByPage' => function (?array $root, array $args, $context, ResolveInfo $info): array {
+                // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
+                return (new Page)->pageBySlug($args);
+            },
+            'Authors' => function (?array $root, array $args, $context, ResolveInfo $info): array {
+                // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
+                return (new Page)->pageBySlug($args);
+            },
         ];
 
         $mutation = [];

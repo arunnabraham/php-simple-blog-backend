@@ -21,7 +21,7 @@ class GraphQLData
 
             go(function () use ($chan, $contents) {
                 $args = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-                $typeDefs = Coroutine\System::readFile(GRAPHQL_SCHEMA);
+                $typeDefs = Coroutine\System::readFile(\GRAPHQL_SCHEMA);
                 $chan->push(execute(schema($typeDefs, createResolvers()), $args));
             });
 
