@@ -24,7 +24,7 @@
         "vlucas/phpdotenv": "^5.3"
     },
     "require-dev": {
-        "swoole/ide-helper": "^4.7"
+        "openswoole/ide-helper": "@dev"
     },
     "scripts": {
         "server": "server.php"

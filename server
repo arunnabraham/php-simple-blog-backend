@@ -16,7 +16,7 @@ require_once "$basedir/vendor/autoload.php";
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-define('GRAPHQL_SCHEMA', __DIR__ . '/schema/'.env('DEFAULT_SCHEMA'));
+define('GRAPHQL_SCHEMA', __DIR__ . '/schema/' . env('DEFAULT_SCHEMA'));
 
 
 $coroutineOptions = [
@@ -45,11 +45,11 @@ $coroutineOptions = [
 
 \Swoole\Coroutine::set($coroutineOptions);
 
-$pageCalls = function (array $routeParams) {
+/* $pageCalls = function (array $routeParams) {
     echo 'Hello World';  
-};
+}; */
 
-$handler = function (Request $request, Response $response) use ($pageCalls){
+$handler = function (Request $request, Response $response) {
     Route\route('post', '/graphql', [(new GraphQLData), 'init']);
     Siler\Swoole\emit('Not found', 404);
 };
@@ -65,6 +65,7 @@ if (env('SSL')) {
 }
 $http->set([
     'enable_coroutine' => true,
+    'open_http2_protocol' => true, //enable Http2
 ]);
 
 $http->start();
