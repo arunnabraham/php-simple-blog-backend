@@ -7,7 +7,10 @@
         "psr-4": {
             "Neoxenos\\PhpSimpleGraphqlBlog\\": "src/"
         },
-        "files" : ["resolvers.php"]
+        "files": [
+            "resolvers.php",
+            "src/Helpers/Functions.php"
+        ]
     },
     "authors": [
         {
@@ -20,7 +23,7 @@
         "webonyx/graphql-php": "^14.9",
         "vlucas/phpdotenv": "^5.3"
     },
-    "require-dev": { 
+    "require-dev": {
         "swoole/ide-helper": "^4.7"
     },
     "scripts": {

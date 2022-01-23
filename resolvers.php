@@ -15,24 +15,25 @@ if (!function_exists('createResolvers')) {
         $query = [
             'PageBySlug' => function (?array $root, array $args, $context, ResolveInfo $info): array {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
-                return (new Page)->pageBySlug($args);
+                //var_dump($info->getFieldSelection()); exit;
+                return (new Page)->pageBySlug($args, $info->getFieldSelection());
             },
             'ListBlogByType' => function (?array $root, array $args, $context, ResolveInfo $info): array {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
-                return (new Page)->pageBySlug($args);
+                return (new Page)->pageBySlug($args, $info->getFieldSelection());
             },
             'ListBlogByCategories' => function (?array $root, array $args, $context, ResolveInfo $info): array {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
-                return (new Page)->pageBySlug($args);
+                return (new Page)->pageBySlug($args, $info->getFieldSelection());
             },
 
             'LisyTagsByPage' => function (?array $root, array $args, $context, ResolveInfo $info): array {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
-                return (new Page)->pageBySlug($args);
+                return (new Page)->pageBySlug($args, $info->getFieldSelection());
             },
             'Authors' => function (?array $root, array $args, $context, ResolveInfo $info): array {
                 // var_dump($info->getFieldSelection()); selected fields to fetch: type Array
-                return (new Page)->pageBySlug($args);
+                return (new Page)->pageBySlug($args, $info->getFieldSelection());
             },
         ];
 

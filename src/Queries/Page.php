@@ -9,27 +9,18 @@ use Neoxenos\PhpSimpleGraphqlBlog\Helpers\SwoolePdoPool as PdoPool;
 use RuntimeException;
 use Swoole\Exception;
 use Swoole\Coroutine\Channel;
-
-use function Siler\Swoole\json as json;
-use \Siler\Swoole as SilerSwoole;
+use function Neoxenos\PhpSimpleGraphqlBlog\Helpers\selectedColumnsSQL;
 
 class Page
 {
-    public function pageBySlug(array $args): array
+    public function pageBySlug(array $args, array $selectedFields): array
     {
         $chan = new Channel(1);
         try {
-            go(function () use ($chan, $args) {
+            go(function () use ($chan, $args, $selectedFields) {
                 $pool = (new PdoPool())->db();
                 $pdo = $pool->get();
-                $colums = [
-                    "id as ID",
-                    "title",
-                    "content",
-                    "meta_description AS metaDescription",
-                    "meta_keywords AS metaKeywords",
-                    "slug"
-                ];
+                $colums = selectedColumnsSQL(array_keys($selectedFields, true, true));
                 $statement = $pdo->prepare("SELECT " . implode(", ", $colums) . " FROM page WHERE slug = :page_slug AND type = :type AND status = :status LIMIT 1");
                 if (!$statement) {
                     throw new RuntimeException('Prepare failed');
