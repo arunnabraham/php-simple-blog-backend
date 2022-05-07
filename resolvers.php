@@ -9,9 +9,6 @@ if (!function_exists('createResolvers')) {
 
     function createResolvers(): array
     {
-        $page = function() {
-
-        };
 
         $query = [
             'pageBySlug' => function (?array $root, array $args) {

@@ -3,13 +3,9 @@
 
 declare(strict_types=1);
 
-use function Siler\GraphQL\schema;
-use GraphQL\Error\Error;
-use GraphQL\GraphQL;
 use Neoxenos\PhpSimpleGraphqlBlog\GraphQLData;
 use Swoole\Http\Request;
 use Siler\Route;
-use function Siler\Swoole\json;
 use Swoole\Http\Response;
 
 $basedir = __DIR__;
@@ -17,6 +13,12 @@ require_once "$basedir/vendor/autoload.php";
 
 define('GRAPHQL_SCHEMA', __DIR__ . '/schema/site.graphql');
 
+use Symfony\Component\Dotenv\Dotenv;
+
+use function Siler\Swoole\response;
+
+$dotenv = new Dotenv();
+$dotenv->load(__DIR__.'/.env');
 
 $coroutineOptions = [
     'max_coroutine' => 4096,
