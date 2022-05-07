@@ -5,6 +5,9 @@ namespace Neoxenos\PhpSimpleGraphqlBlog\Helpers;
 
 use Swoole\Database\PDOConfig;
 use Swoole\Database\PDOPool;
+
+use function Siler\Dotenv\env;
+
 class SwoolePdoPool {
 
     public function db(): PDOPool
@@ -13,12 +16,12 @@ class SwoolePdoPool {
         var_dump($_ENV);
         $pool = new PDOPool(
             (new PDOConfig)
-                ->withHost($_ENV['PDO_DB_HOST'])
-                ->withPassword($_ENV['PDO_DB_PASSWORD'])
-                ->withUsername($_ENV['PDO_DB_USERNAME'])
-                ->withPort($_ENV['PDO_DB_PORT'])
-                ->withDriver($_ENV['PDO_DRIVER'])
-                ->withDbname($_ENV['PDO_DB_NAME'])
+                ->withHost(env('DB_HOST'))
+                ->withPassword(env('DB_PASSWORD'))
+                ->withUsername(env('DB_USERNAME'))
+                ->withPort(intval(env('DB_PORT')))
+                ->withDriver(env('DB_DRIVER'))
+                ->withDbname(env('DB_NAME'))
         );
 
         return $pool;

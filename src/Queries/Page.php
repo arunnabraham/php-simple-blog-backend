@@ -8,44 +8,40 @@ use Neoxenos\PhpSimpleGraphqlBlog\Helpers\SwoolePdoPool as PdoPool;
 use RuntimeException;
 use Swoole\Exception;
 use Swoole\Coroutine\Channel;
-
-use function Siler\Swoole\json as json;
-use \Siler\Swoole as SilerSwoole;
+use function Neoxenos\PhpSimpleGraphqlBlog\Helpers\selectedColumnsSQL;
 
 class Page
 {
-    public function pageBySlug(array $args)
+    public function pageBySlug(array $args, array $selectedFields): array
     {
-        $slug = $args['slug'];
-        $pool = (new PdoPool())->db();
+        $chan = new Channel(1);
         try {
-            $chan = new Channel(1);
-            go(function () use ($pool, $chan, $slug) {
+            go(function () use ($chan, $args, $selectedFields) {
+                $pool = (new PdoPool())->db();
                 $pdo = $pool->get();
-                $colums = [
-                    "id",  
-                    "title", 
-                    "main_content AS content", 
-                    "meta_description AS metaDescription", 
-                    "meta_keywords AS metaKeywords",
-                    "page_slug AS slug"
-                ];
-                $statement = $pdo->prepare("SELECT ".implode(", ", $colums)." FROM content WHERE page_slug = :page_slug AND content_type = 'page' AND publish_status = 'publish' LIMIT 1");
+                $colums = selectedColumnsSQL(array_keys($selectedFields, true, true));
+                $statement = $pdo->prepare("SELECT " . implode(", ", $colums) . " FROM page WHERE slug = :page_slug AND type = :type AND status = :status LIMIT 1");
                 if (!$statement) {
                     throw new RuntimeException('Prepare failed');
                 }
-                $statement->bindValue('page_slug', $slug, \PDO::PARAM_STR);
+                $statement->bindValue('page_slug', $args['slug'] ?? '', \PDO::PARAM_STR);
+                $statement->bindValue('type', $args['type'] ?? 'page', \PDO::PARAM_STR);
+                $statement->bindValue('status', $args['status'] ?? 'publish', \PDO::PARAM_STR);
                 $result = $statement->execute();
                 if (!$result) {
                     throw new RuntimeException('Execute failed');
                 }
                 $pool->put($pdo);
+                //$pool->close();
                 $result = $statement->fetch(PDO::FETCH_ASSOC);
+                $result !== false ? $result : [];
                 $chan->push($result);
             });
         } catch (Exception $e) {
-            echo $e->getMessage();
+            $chan->push(['error' => $e->getMessage()]);
         }
-        return json($chan->pop());
+        return $chan->pop();
     }
+
+
 }

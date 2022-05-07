@@ -1,10 +1,12 @@
 type Page {
     id: ID!,
     title: String,
+    type: String,
     content: String,
     metaDescription: String,
     metaKeywords: String
-    slug: String
+    slug: String,
+    datePublished: String
 }
 
 type Author {
@@ -32,10 +34,16 @@ type Tag {
 
 type Blog {
     page: Page,
+    mainImage: String,
     categories: [Categories],
     author: Author
 }
 
+type Blogs {
+    list:[Blog]
+}
+
 type Query {
-    pageBySlug(slug: String): Page
+    PageBySlug(slug: String, type: String, status: String): Page,
+    listBlogsByCategory(category: String, page: Pagination): Blogs
 }

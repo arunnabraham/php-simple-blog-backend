@@ -2,6 +2,7 @@
 
 namespace Neoxenos\PhpSimpleGraphqlBlog;
 
+use Exception;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
 
@@ -20,9 +21,17 @@ class GraphQLData
             $chan = new Channel(1);
 
             go(function () use ($chan, $contents) {
-                $args = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-                $typeDefs = Coroutine\System::readFile(GRAPHQL_SCHEMA);
-                $chan->push(execute(schema($typeDefs, createResolvers()), $args));
+                try {
+                    $args = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+                    $typeDefs = Coroutine\System::readFile(\GRAPHQL_SCHEMA);
+                    if (is_string($typeDefs)) {
+                        $chan->push(execute(schema($typeDefs, createResolvers()), $args));
+                    } else {
+                        throw new Exception('Invalid Schema');
+                    }
+                } catch (\Exception $e) {
+                    return json(['error' => $e->getMessage()], 404);
+                }
             });
 
 
