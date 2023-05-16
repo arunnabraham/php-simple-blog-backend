@@ -1,0 +1,49 @@
+type Page {
+    id: ID!,
+    title: String,
+    type: String,
+    content: String,
+    metaDescription: String,
+    metaKeywords: String
+    slug: String,
+    datePublished: String
+}
+
+type Author {
+    id: ID!,
+    name: String,
+    bio: String,
+    country: String,
+
+}
+
+type Pagination {
+    limit: Int,
+    page: Int
+}
+
+type Category {
+    id: ID!,
+    name: String
+}
+
+type Tag {
+    id: ID!,
+    name: String
+}
+
+type Blog {
+    page: Page,
+    mainImage: String,
+    categories: [Categories],
+    author: Author
+}
+
+type Blogs {
+    list:[Blog]
+}
+
+type Query {
+    PageBySlug(slug: String, type: String, status: String): Page,
+    listBlogsByCategory(category: String, page: Pagination): Blogs
+}

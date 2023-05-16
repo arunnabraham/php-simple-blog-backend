@@ -1,0 +1,77 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Neoxenos\PhpSimpleGraphqlBlog\GraphQLData;
+use Swoole\Http\Request;
+use Siler\Route;
+use Swoole\Http\Response;
+
+use function Siler\Dotenv\env;
+
+$basedir = __DIR__;
+require_once "$basedir/vendor/autoload.php";
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+define('GRAPHQL_SCHEMA', __DIR__ . '/schema/' . env('DEFAULT_SCHEMA'));
+
+use Symfony\Component\Dotenv\Dotenv;
+
+use function Siler\Swoole\response;
+
+$dotenv = new Dotenv();
+$dotenv->load(__DIR__.'/.env');
+
+$coroutineOptions = [
+    'max_coroutine' => 4096,
+    'stack_size' => 2 * 1024 * 1024,
+    'socket_connect_timeout' => 1,
+    'socket_timeout' => -1,
+    'socket_read_timeout' => -1,
+    'socket_write_timeout' => -1,
+    'log_level' => SWOOLE_LOG_INFO,
+    'hook_flags' => SWOOLE_HOOK_ALL,
+    'trace_flags' => SWOOLE_TRACE_ALL,
+    'dns_cache_expire' => 60,
+    'dns_cache_capacity' => 1000,
+    'dns_server' => '8.8.8.8',
+    'display_errors' => false,
+    'aio_core_worker_num' => 10,
+    'aio_worker_num' => 10,
+    'aio_max_wait_time' => 1,
+    'aio_max_idle_time' => 1,
+    'enable_preemptive_scheduler' => true,
+    'exit_condition' => function () {
+        return \Swoole\Coroutine::stats()['coroutine_num'] === 0;
+    },
+];
+
+\Swoole\Coroutine::set($coroutineOptions);
+
+/* $pageCalls = function (array $routeParams) {
+    echo 'Hello World';  
+}; */
+
+$handler = function (Request $request, Response $response) {
+    Route\route('post', '/graphql', [(new GraphQLData), 'init']);
+    Siler\Swoole\emit('Not found', 404);
+};
+
+$port = getenv('PORT') ? intval(getenv('PORT')) : 8000;
+
+if (env('SSL')) {
+    echo "Listening on https://" . env('SERVER_NAME') . ":$port\n";
+    $http = \Siler\Swoole\http2(env('CERT_FILE'), env('CERT_KEY'), $handler, $port, env('SERVER_NAME'));
+} else {
+    echo "Listening on https://" . env('SERVER_NAME') . ":$port\n";
+    $http = \Siler\Swoole\http($handler, $port, env('SERVER_NAME'));
+}
+$http->set([
+    'enable_coroutine' => true,
+    'open_http2_protocol' => true, //enable Http2
+]);
+
+$http->start();

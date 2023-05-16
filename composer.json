@@ -6,7 +6,11 @@
     "autoload": {
         "psr-4": {
             "Neoxenos\\PhpSimpleGraphqlBlog\\": "src/"
-        }
+        },
+        "files": [
+            "resolvers.php",
+            "src/Helpers/Functions.php"
+        ]
     },
     "authors": [
         {
@@ -16,9 +20,17 @@
     ],
     "require": {
         "leocavalcante/siler": "^1.7",
-        "webonyx/graphql-php": "^14.9"
+        "webonyx/graphql-php": "^14.9",
+<<<<<<< HEAD
+        "symfony/dotenv": "^5.3"
+=======
+        "vlucas/phpdotenv": "^5.3"
+>>>>>>> a9b4c45fa73e2f4db84efc65e4b1515c86c954a2
     },
     "require-dev": {
-        "swoole/ide-helper": "^4.7"
+        "openswoole/ide-helper": "@dev"
+    },
+    "scripts": {
+        "server": "server.php"
     }
 }
